@@ -6,32 +6,30 @@
 # stats summarization.
 ###
 
-FROM debian:latest
+FROM debian:jessie
 MAINTAINER Brent Salisbury <brent.salisbury@gmail.com
 
-RUN apt-get update
-RUN apt-get install -y \
-    gcc \
+RUN apt-get update && apt-get install -y \
+    apache2 \
     flex \
-    rrdtool \
-    apache2 \
-    tcpdump \
-    wget \
-    php5 \
-    apache2 \
-    librrd-dev \
+    gcc \
     libapache2-mod-php5 \
-    php5-common \
     libio-socket-inet6-perl \
     libio-socket-ssl-perl \
-    libmailtools-perl \
-    librrds-perl \
-    libwww-perl \
     libipc-run-perl \
-    perl-base \
+    libmailtools-perl \
+    librrd-dev \
+    librrds-perl \
     libsys-syslog-perl \
+    libwww-perl \
+    net-tools \
+    perl-base \
+    php5 \
+    php5-common \
+    rrdtool \
+    tcpdump \
     supervisor \
-    net-tools
+    wget
 
 # Cleanup apt-get cache
 RUN apt-get clean
