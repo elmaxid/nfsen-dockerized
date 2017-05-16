@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y \
     librrds-perl \
     libsys-syslog-perl \
     libwww-perl \
+    nano \
     net-tools \
     perl-base \
     php5 \
@@ -100,10 +101,14 @@ WORKDIR /data/nfsen-${NFSEN_VERSION}
 RUN perl ./install.pl etc/nfsen-dist.conf || true
 RUN sleep 3
 
+# Replace the main index.html file to redirect to /nfsen/nfsen.php
+COPY replacement-index.html /var/www/html/index.html
+
 # Patch up the VirtualHost so that /nfsen URLs are served from /var/www/nfsen
 RUN sed -i.bak -e'/<\/VirtualHost>/ i \
        Alias "/nfsen" "/var/www/nfsen" \n\
 ' /etc/apache2/sites-available/000-default.conf 
+
 
 WORKDIR /
 # Add startup script for nfsen profile init

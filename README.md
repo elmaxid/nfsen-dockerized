@@ -5,17 +5,22 @@ Netflow collector and web display based on NFSEN/NFDUMP in a Docker container.
 This container listens on ports 2055, 4739, 6343, and 9666 for netflow, ipfix, and sFlow exports. 
 It displays the collected data in a web interface.
 
+*Testing Status: This container has been tested with 
+Docker Community Edition Version 17.03.1-ce-mac5 (16048) 
+running on a mid-2011 Mac mini, OSX 10.12.4, with a 2.3 GHz Intel Core i5 processor and 8 GBytes RAM. 
+If you try it out, please file an issue and let me know how it worked for you.*
+
 ### QuickStart - Install and test the nfsen-dockerized container
 
 1. Clone the repo
  
     ```
-    $ git clone https://github.com/nerdalert/net-collector.git
+    $ git clone https://github.com/richb-hanover/nfsen-dockerized.git
     ```	
 2. Build the container from the Dockerfile
 
     ```
-    $ cd net-collector
+    $ cd nfsen-dockerized
     $ docker build -t nfsen-dockerized .
     ```
 3. Run the container. Add "-d" to daemonize the container (e.g., `docker run -d -p ...`)
@@ -23,7 +28,7 @@ It displays the collected data in a web interface.
     ```
 	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
     ```
-4. You should see supervisord start the apache daemon in the terminal like so:
+4. You should see `supervisord` start the apache daemon in the terminal like so:
 
     ```
 	 2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) 
