@@ -21,7 +21,7 @@ It displays the collected data in a web interface.
 3. Run the container. Add "-d" to daemonize the container (e.g., `docker run -d -p ...`)
 
     ```
-	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name flow_img nfsen-dockerized
+	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
     ```
 4. You should see supervisord start the apache daemon in the terminal like so:
 
@@ -41,12 +41,12 @@ It displays the collected data in a web interface.
 * To connect to the container via a terminal, use this command:
 
     ```
-    $ docker exec -i -t flow_img /bin/bash
+    $ docker exec -i -t nfsen_img /bin/bash
     ```
-* To make a change to the container, stop it with the command below (this removes the "flow_img" name), edit the Dockerfile, then rebuild and `docker run`...
+* To make a change to the container, stop it with the command below (this removes the "nfsen_img" name), edit the Dockerfile, then rebuild and `docker run`...
 
     ```
-    $ docker rm -f flow_img
+    $ docker rm -f nfsen_img
     ```
 * You can break down the run command over multiple lines for better readability: see `docker run --help` for an explanation of the fields:
 
@@ -57,7 +57,7 @@ It displays the collected data in a web interface.
 	  -p 4739:4739/udp \
 	  -p 6343:6343/udp \
 	  -p 9996:9996/udp \
-	  -i -t --name flow_img \
+	  -i -t --name nfsen_img \
 	  net-collector:v1
     ```
 * The container opens these ports:
@@ -72,7 +72,7 @@ It displays the collected data in a web interface.
 Verify the port bindings with `docker port image_name`
 
    ```
-   $ docker port flow_img
+   $ docker port nfsen_img
 	2055/udp -> 0.0.0.0:2055
 	4739/udp -> 0.0.0.0:4739
 	6343/udp -> 0.0.0.0:6343
@@ -264,7 +264,7 @@ And then run the new image, for example:
 
     $ docker run  -p 80:80 -p 9995:9995/udp -p 9996:9996/udp -i -t xflow_debian:v2
 
-	$  docker run  -p 22 -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t -name flow_img nfsen-v2.0
+	$  docker run  -p 22 -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t -name nfsen_img nfsen-v2.0
 
 You can also modify the startup bash script located in /data/
 
