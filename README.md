@@ -1,75 +1,75 @@
-### Overview
+# Overview - nfsen-dockerized 
 
-**Note:** I did this a long time ago. Pre-fig etc. Needs updating to be useful. It is used to setup nfsen/nfdump that can then be pushed to a global collector.
+Netflow collector and web display based on NFSEN/NFDUMP in a Docker container.
 
-The first container in the set will setup the local collector  to be installed on every host. While the local collector listens on IP ports and can be oversubscribed, it is interesting to view network collection and analytics as becoming fully distributed along with packet-forwarding and the trend is disagregated network services.  Transitioning network service and management to a scale out architecture on general purpose compute is the primary CapEx savings SDN presents in the data center and beyond.
+This container listens on ports 2055, 4739, 6343, and 9666 for netflow, ipfix, and sFlow exports. 
+It displays the collected data in a web interface.
 
-### QuickStart - Pre-Requisite running Docker instance
+### QuickStart - Install and test the nfsen-dockerized container
 
-***- Docker Installations by OS***
+1. Clone the repo
+ 
+    ```
+    $ git clone https://github.com/nerdalert/net-collector.git
+    ```	
+2. Build the container from the Dockerfile
 
-- **(Mac)** Boot2Docker Installation:
-Boot2Docker is the Mac Docker application that is a thin Linux instance tightly integrated into your Mac environment.
-boot2docker Docker Doc Instructions
-https://github.com/boot2docker/boot2docker
+  ```
+  $ cd net-collector
+  $ docker build -t nfsen-dockerized .
+  ```
+3. Run the container. Add "-d" to daemonize the container (e.g., `docker run -d -p ...`)
 
-- **(Linux Debian)**: [Docker Debian Installation](https://docs.docker.com/installation/debian/)
-- **(Linux Fedora)**: [Docker Fedora Installation](https://docs.docker.com/installation/fedora/)
-- **(Linux Ubuntu)**: [Docker Ubuntu Installation](https://docs.docker.com/installation/ubuntulinux/)
-- **(Linux CentOS)**: [Docker CentOS Installation](https://docs.docker.com/installation/centos/)
-- All OS Distributions can be found at [Docker Documentation](https://docs.docker.com/installation/)
+  ```
+	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name flow_img nfsen-dockerized
+  ```
+4. You should see supervisord start the apache daemon in the terminal like so:
 
-### QuickStart - Install gopher-net-collect
+  ```
+	2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) 
+```
 
-Clone the repo
+5. Point your web browser to [http://localhost:81/nfsen/nfsen.php](http://localhost:81/nfsen/nfsen.php) The browser will display a warning about "no live data." (**Note:** The `docker run...` command uses port 81 to connect to the docker container's web port 80.)
+6. Change the **Profile:** (in the header dropdown) to *zone1_profile*
 
-	git clone https://github.com/nerdalert/net-collector.git
-	cd net-collector
+7. Configure your router(s) to export flows to this collector, or generate mock flow data (see below).
 
-Build the container from the [dockerfile](https://github.com/tools/godep)
+8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. Refreshing the browser should show data at the right edge of any of the plots.
 
-	$ docker build -t net-collector:v1 .
+### QuickStart - Other setup information and tests
 
-Run the container
+* To connect to the container via a terminal, use this command:
 
-	$ docker run -p 2222:22 -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name flow_img net-collector:v1
+  ```
+    $ docker exec -i -t flow_img /bin/bash
+  ```
+* To make a change to the container, stop it with the command below (this removes the "flow_img" name), edit the Dockerfile, then rebuild and `docker run`...
 
-or breakdown the run command over multiple lines for better readability `docker run --help for an explanation of the fields`:
+  ```
+  $ docker rm -f flow_img
+  ```
+* You can break down the run command over multiple lines for better readability: see `docker run --help` for an explanation of the fields:
 
-	$ docker run -p 2222:22 \
-	-p 80:80 \
-	-p 2055:2055/udp \
-	-p 4739:4739/udp \
-	-p 6343:6343/udp \
-	-p 9996:9996/udp \
-	 -i -t --name flow_img \
-	 net-collector:v1
+  ```
+	$ docker run 
+	  -p 81:80 \
+	  -p 2055:2055/udp \
+	  -p 4739:4739/udp \
+	  -p 6343:6343/udp \
+	  -p 9996:9996/udp \
+	  -i -t --name flow_img \
+	  net-collector:v1
+  ```
+* The container opens these ports:
 
-The mappings associate to the following ports (copied from the Dockerfile):
+	* Apache `EXPOSE 80`
+	* NetFlow `EXPOSE 2055`
+	* IPFIX `EXPOSE 4739`
+	* sFlow `EXPOSE 6343`
+	* nfsen src ip src node mappings `EXPOSE 9996`
 
-	# sshd
-	EXPOSE 22
-	# Apache
-	EXPOSE 80
-	# NetFlow
-	EXPOSE 2055
-	# IPFIX
-	EXPOSE 4739
-	# sFlow
-	EXPOSE 6343
-	# nfsen src ip src node mappings
-	EXPOSE 9996
 
-### QuickStart - verify service port bindings
-
-You should see supervisord start the ssh and apache daemons in the terminal like so:
-
-	2015-02-22 04:12:27,903 INFO success: sshd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
-	2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
-
-**Note:** There are many reason not to run sshd but for getting your container image tweaked to how you want it and initial tshooting, some shell access is necessary for most. You can also run a Bash shell rather then ssh access if you want and a Dockerfile and example for a shell will be added rather then ssh.
-
-You can verify the port bindings with `docker port image_name`
+Verify the port bindings with `docker port image_name`
 
 	$ docker port flow_img
 	2055/udp -> 0.0.0.0:2055
@@ -83,7 +83,7 @@ You can verify the port bindings with `docker port image_name`
 
 In the list should be the Apache port if no other process was already bound to the port and now point your browser at the container like so (*Note* there will not be any flows in the RRD graphs until we generate some in the next section):
 
-	http://192.168.59.103/nfsen/nfsen.php
+	http://192.168.59.103/nfsen/nfsen.php  # use your computer's IP address
 
 Change the dropdown box from `live` to `zone1_profile` to view live graphing of data in the profile that is packaged as part of the Docker image.
 
@@ -421,7 +421,30 @@ Docker also caches builds so you don't have to rebuild the entire thing everytim
 
 ### Troubleshooting
 
-Command parameters are well documented in the man pages. Basics are:
+Verify that the nfsen and nfdump processes are running:
+
+	root@2964d8693fa4:/# nfsen status
+	NfSen version: -1
+	NfSen status:
+	Collector for (netflow-global) port 2055 is running [31].
+	Collector for (sflow-global) port 6343 is running [25].
+	Collector for (ipfix-global) port 4739 is running [28].
+	Collector for (peer1 peer2) port 9996 is running [22].
+	nfsen daemon:  pid: [33] is running.
+
+Check that all of the processes are running inside of the container:
+
+	root@aba11747ca4c:/# ps -eaf | grep nf
+
+	netflow     20     1  0 05:57 ?        00:00:00 /usr/local/bin/sfcapd -w -D -p 6343 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p6343.pid -z -I sflow-global -l /data/nfsen/profiles-data/live/sflow-global
+	netflow     23     1  0 05:57 ?        00:00:00 /usr/local/bin/nfcapd -w -D -p 2055 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p2055.pid -z -I netflow-global -l /data/nfsen/profiles-data/live/netflow-global
+	netflow     26     1  0 05:57 ?        00:00:00 /usr/local/bin/nfcapd -w -D -p 9996 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p9996.pid -z -n peer1 172.16.17.18 /data/nfsen/profiles-data/live/peer1 -n peer2 172.16.17.19 /data/nfsen/profiles-data/live/peer2
+	netflow     29     1  0 05:57 ?        00:00:00 /usr/local/bin/nfcapd -w -D -p 4739 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p4739.pid -z -I ipfix-global -l /data/nfsen/profiles-data/live/ipfix-global
+	netflow     31     1  0 05:57 ?        00:00:00 /usr/bin/perl -w /data/nfsen/bin/nfsend
+	netflow     32    31  0 05:57 ?        00:00:00 /data/nfsen/bin/nfsend-comm
+	root       680   123  0 06:19 ?        00:00:00 grep nf
+
+Other nfsen command parameters are well documented in the man pages. Basics are:
 
     Root commands:
     The commands below are only accepted, when running nfsen as root.
@@ -511,18 +534,6 @@ Grep for network setting like so:
 	    "Path": "/bin/sh",
 	    "ProcessLabel": "",
 
-Check that all of the processes are running inside of the container:
-
-	root@aba11747ca4c:/# ps -eaf | grep nf
-
-	netflow     20     1  0 05:57 ?        00:00:00 /usr/local/bin/sfcapd -w -D -p 6343 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p6343.pid -z -I sflow-global -l /data/nfsen/profiles-data/live/sflow-global
-	netflow     23     1  0 05:57 ?        00:00:00 /usr/local/bin/nfcapd -w -D -p 2055 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p2055.pid -z -I netflow-global -l /data/nfsen/profiles-data/live/netflow-global
-	netflow     26     1  0 05:57 ?        00:00:00 /usr/local/bin/nfcapd -w -D -p 9996 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p9996.pid -z -n peer1 172.16.17.18 /data/nfsen/profiles-data/live/peer1 -n peer2 172.16.17.19 /data/nfsen/profiles-data/live/peer2
-	netflow     29     1  0 05:57 ?        00:00:00 /usr/local/bin/nfcapd -w -D -p 4739 -u netflow -g www-data -B 200000 -S 1 -P /data/nfsen/var/run/p4739.pid -z -I ipfix-global -l /data/nfsen/profiles-data/live/ipfix-global
-	netflow     31     1  0 05:57 ?        00:00:00 /usr/bin/perl -w /data/nfsen/bin/nfsend
-	netflow     32    31  0 05:57 ?        00:00:00 /data/nfsen/bin/nfsend-comm
-	root       680   123  0 06:19 ?        00:00:00 grep nf
-
 Install `net-tools` to get netstat installed on the container and docker host if not already present.
 
 	apt-get install net-tools
@@ -573,3 +584,34 @@ Please feel free to jump in on this project. It is integrating community softwar
 - Query EGP/IGP network protocols for network state that can add further visibility for location and any other interesting use cases that can be hacked together having rich data sets.
 
 - Add an API to the ccollector side to install policy filters from the central.
+
+### Deprecated info from original README
+
+**Note:** I did this a long time ago. Pre-fig etc. Needs updating to be useful. It is used to setup nfsen/nfdump that can then be pushed to a global collector.
+
+The first container in the set will setup the local collector  to be installed on every host. While the local collector listens on IP ports and can be oversubscribed, it is interesting to view network collection and analytics as becoming fully distributed along with packet-forwarding and the trend is disagregated network services.  Transitioning network service and management to a scale out architecture on general purpose compute is the primary CapEx savings SDN presents in the data center and beyond.
+
+### QuickStart - Pre-Requisite running Docker instance
+
+***- Docker Installations by OS***
+
+- **(Mac)** Boot2Docker Installation:
+Boot2Docker is the Mac Docker application that is a thin Linux instance tightly integrated into your Mac environment.
+boot2docker Docker Doc Instructions
+https://github.com/boot2docker/boot2docker
+
+- **(Linux Debian)**: [Docker Debian Installation](https://docs.docker.com/installation/debian/)
+- **(Linux Fedora)**: [Docker Fedora Installation](https://docs.docker.com/installation/fedora/)
+- **(Linux Ubuntu)**: [Docker Ubuntu Installation](https://docs.docker.com/installation/ubuntulinux/)
+- **(Linux CentOS)**: [Docker CentOS Installation](https://docs.docker.com/installation/centos/)
+- All OS Distributions can be found at [Docker Documentation](https://docs.docker.com/installation/)
+
+---
+
+You should see supervisord start the apache daemons in the terminal like so:
+
+	2015-02-22 04:12:27,903 INFO success: sshd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+	2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+
+**Note:** The container starts sshd: there are many reason not to run sshd but for getting your container image tweaked to how you want it and initial tshooting, some shell access is necessary for most. 
+
