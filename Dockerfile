@@ -94,6 +94,11 @@ WORKDIR /data/nfsen-${NFSEN_VERSION}
 RUN perl ./install.pl etc/nfsen-dist.conf || true
 RUN sleep 3
 
+# Patch up the VirtualHost so that /nfsen comes from /var/www/nfsen
+RUN sed -i.bak -e'/<\/VirtualHost>/ i \
+       Alias "/nfsen" "/var/www/nfsen" \n\
+' /etc/apache2/sites-available/000-default.conf 
+
 WORKDIR /
 # Add startup script for nfsen profile init
 ADD ./start.sh /data/start.sh
