@@ -10,7 +10,8 @@ For more information, read files from the `/docs` directory.
 
 *Testing Status: This container has been tested with 
 Docker Community Edition Version 17.03.1-ce-mac5 (16048) 
-running on a mid-2011 Mac mini, OSX 10.12.4, with a 2.3 GHz Intel Core i5 processor and 8 GBytes RAM. 
+running on a mid-2011 Mac mini, OSX 10.12.4, 
+with a 2.3 GHz Intel Core i5 processor and 8 GBytes RAM. 
 It works great with my LEDE/OpenWrt router after installing the softflowd package to export netflow info to nfsen/nfdump.
 If you try it out, please file an issue and let me know how it worked for you.* 
 
