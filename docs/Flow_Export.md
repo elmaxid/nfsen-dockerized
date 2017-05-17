@@ -1,5 +1,13 @@
 # Linux Networking Flow Exporting
 
+## LEDE/OpenWrt
+
+Install the softflowd package, then invoke softflowd with the following command:
+     ```
+    softflowd -d -i br-lan -t maxlife=60 -m 8192 -n nfsen-ip-address:2055 -v 5 -T full -s 100 
+    ```
+## Other exporters
+
 There are currently two prevalent virtual switch datapaths:
 
 1. Linux Bridge: while natively installed, it does not have a native means for exporting Netflow, sFlow or IPFIX

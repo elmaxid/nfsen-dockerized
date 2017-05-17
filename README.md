@@ -1,18 +1,24 @@
 # Overview - nfsen-dockerized 
 
-Netflow collector and web display based on NFSEN/NFDUMP in a Docker container.
+A lightweight Netflow collector and web display based on NFSEN/NFDUMP in a Docker container. 
+[NFSEN](http://nfsen.sourceforge.net/) and [NFDUMP](http://nfdump.sourceforge.net/) are documented and hosted at [SourceForge.net](SourceForge.net)
 
 This container listens on ports 2055, 4739, 6343, and 9666 for netflow, ipfix, and sFlow exports. 
 It displays the collected data in a web interface.
 
+For more information, read files from the `/docs` directory.
+
 *Testing Status: This container has been tested with 
 Docker Community Edition Version 17.03.1-ce-mac5 (16048) 
 running on a mid-2011 Mac mini, OSX 10.12.4, with a 2.3 GHz Intel Core i5 processor and 8 GBytes RAM. 
-If you try it out, please file an issue and let me know how it worked for you.*
+It works great with my LEDE/OpenWrt router after installing the softflowd package to export netflow info to nfsen/nfdump.
+If you try it out, please file an issue and let me know how it worked for you.* 
 
 ### QuickStart - Install and test the nfsen-dockerized container
 
-1. Clone the repo
+1. Install [Docker](https://www.docker.com/community-edition) (the Community Edition works fine) on a computer that's always running. nfsen/nsdump will run there and collect the netflow data 24x7.
+
+1. Clone the *nfsen-dockerized* repo.
  
     ```
     $ git clone https://github.com/richb-hanover/nfsen-dockerized.git
@@ -23,7 +29,7 @@ If you try it out, please file an issue and let me know how it worked for you.*
     $ cd nfsen-dockerized
     $ docker build -t nfsen-dockerized .
     ```
-3. Run the container. Add "-d" to daemonize the container (e.g., `docker run -d -p ...`)
+3. Run the container. 
 
     ```
 	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
@@ -37,7 +43,7 @@ If you try it out, please file an issue and let me know how it worked for you.*
 5. Point your web browser to [http://localhost:81/nfsen/nfsen.php](http://localhost:81/nfsen/nfsen.php) The browser will display a warning about "no live data." (**Note:** The `docker run...` command uses port 81 to connect to the docker container's web port 80.)
 6. Change the **Profile:** (in the header dropdown) to *zone1_profile*
 
-7. Configure your router(s) to export flows to this collector, or generate mock flow data (see below).
+7. Configure your router(s) to export flows to this collector, or generate mock flow data (see below). See the Flow_Export.md document for more information.
 
 8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. Refreshing the browser should show data at the right edge of any of the plots.
 
@@ -48,12 +54,14 @@ If you try it out, please file an issue and let me know how it worked for you.*
     ```
     $ docker exec -i -t nfsen_img /bin/bash
     ```
+* Add "-d" to daemonize the container when you run it (e.g., `docker run -d -p ...`) This allows you to continue working in the same terminal window. 
+
 * To make a change to the container, stop it with the command below (this removes the "nfsen_img" name), edit the Dockerfile, then rebuild and `docker run`...
 
     ```
     $ docker rm -f nfsen_img
     ```
-* You can break down the run command over multiple lines for better readability: see `docker run --help` for an explanation of the fields:
+* You can break the `run` command over multiple lines for better readability: see `docker run --help` for an explanation of the fields:
 
     ```
 	$ docker run 
@@ -63,14 +71,14 @@ If you try it out, please file an issue and let me know how it worked for you.*
 	  -p 6343:6343/udp \
 	  -p 9996:9996/udp \
 	  -i -t --name nfsen_img \
-	  net-collector:v1
+	  nfsen-dockerized
     ```
 * The container opens these ports:
 
-	* Apache `EXPOSE 80`
-	* NetFlow `EXPOSE 2055`
-	* IPFIX `EXPOSE 4739`
-	* sFlow `EXPOSE 6343`
+	* Apache default port `EXPOSE 80`
+	* NetFlow default port `EXPOSE 2055`
+	* IPFIX default port `EXPOSE 4739`
+	* sFlow default port `EXPOSE 6343`
 	* nfsen src ip src node mappings `EXPOSE 9996`
 
 
@@ -95,7 +103,7 @@ Change the dropdown box from `live` to `zone1_profile` to view live graphing of 
 
 ![1-empty-flow-tables](https://cloud.githubusercontent.com/assets/1711674/6328202/f8227492-bb32-11e4-9c1c-2cef151b15d0.jpg)
 
-If you choose another port to map Apache to like so `-p 81:80` and then add the url:port to the http address like the following example:
+If you chose to map Apache web server to another port (e.g. `-p 81:80`) then add the port to the URL:
 
     http://192.168.59.103:81/nfsen/nfsen.php    # or port 81, if it has been remapped
 

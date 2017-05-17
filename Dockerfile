@@ -102,7 +102,7 @@ RUN perl ./install.pl etc/nfsen-dist.conf || true
 RUN sleep 3
 
 # Replace the main index.html file to redirect to /nfsen/nfsen.php
-COPY replacement-index.html /var/www/html/index.html
+COPY setup-files/replacement-index.html /var/www/html/index.html
 
 # Patch up the VirtualHost so that /nfsen URLs are served from /var/www/nfsen
 RUN sed -i.bak -e'/<\/VirtualHost>/ i \
@@ -112,9 +112,9 @@ RUN sed -i.bak -e'/<\/VirtualHost>/ i \
 
 WORKDIR /
 # Add startup script for nfsen profile init
-ADD ./start.sh /data/start.sh
+ADD setup-files/start.sh /data/start.sh
 # flow-generator binary for testing
-ADD ./flow-generator /data/flow-generator
-ADD	./supervisord.conf /etc/supervisord.conf
+ADD setup-files/flow-generator /data/flow-generator
+ADD	setup-files/supervisord.conf /etc/supervisord.conf
 
 CMD bash -C '/data/start.sh'; '/usr/bin/supervisord'
