@@ -19,7 +19,7 @@ If you try it out, please file an issue and let me know how it worked for you.*
 
 1. Install [Docker](https://www.docker.com/community-edition) (the Community Edition works fine) on a computer that's always running. nfsen/nsdump will run there and collect the netflow data 24x7.
 
-1. Clone the *nfsen-dockerized* repo.
+1. Clone the *nfsen-dockerized* repo to that computer.
  
     ```
     $ git clone https://github.com/richb-hanover/nfsen-dockerized.git
@@ -41,12 +41,12 @@ If you try it out, please file an issue and let me know how it worked for you.*
 	 2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) 
     ```
 
-5. Point your web browser to [http://localhost:81/nfsen/nfsen.php](http://localhost:81/nfsen/nfsen.php) The browser will display a warning about "no live data." (**Note:** The `docker run...` command uses port 81 to connect to the docker container's web port 80.)
-6. Change the **Profile:** (in the header dropdown) to *zone1_profile*
+5. Point your web browser to [http://localhost:81](http://localhost:81/) The browser will display a warning about "no live data." (**Note:** The `docker run...` command above maps external port 81 to the docker container's web port 80.)
+6. Select *zone1_profile* from the **Profile:** (in the header dropdown)
 
 7. Configure your router(s) to export flows to this collector, or generate mock flow data (see below). See the Flow_Export.md document for more information.
 
-8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. Refreshing the browser should show data at the right edge of any of the plots.
+8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. After that, refreshing the browser shows the data collected at the right edge of any of the plots.
 
 ### QuickStart - Other setup information and tests
 
