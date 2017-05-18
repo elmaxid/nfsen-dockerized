@@ -7,6 +7,8 @@ This container listens on ports 2055, 4739, 6343, and 9666 for netflow, ipfix, a
 It displays the collected data in a web interface.
 
 For more information, read files from the `/docs` directory.
+Major thanks go to [https://github.com/nerdalert/nfsen-dockerized](https://github.com/nerdalert/nfsen-dockerized) 
+for a start on this Dockerfile and all the supporting documentation.
 
 *Testing Status: This container has been tested with 
 Docker Community Edition Version 17.03.1-ce-mac5 (16048) 
