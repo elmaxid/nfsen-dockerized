@@ -17,7 +17,7 @@ with a 2.3 GHz Intel Core i5 processor and 8 GBytes RAM.
 It works great with my LEDE/OpenWrt router after installing the softflowd package to export netflow info to nfsen/nfdump.
 If you try it out, please file an issue and let me know how it worked for you.* 
 
-### QuickStart - Install and test the nfsen-dockerized container
+### QuickStart - Install and test nfsen-dockerized
 
 1. Install [Docker](https://www.docker.com/community-edition) (the Community Edition works fine) on a computer that's always running. nfsen/nsdump will run there and collect the netflow data 24x7.
 
@@ -26,104 +26,47 @@ If you try it out, please file an issue and let me know how it worked for you.*
     ```
     $ git clone https://github.com/richb-hanover/nfsen-dockerized.git
     ```	
-2. Build the container from the Dockerfile
+2. Build the container from the Dockerfile. The commands below build it with the name *nfsen-dockerized*. 
+This can take many minutes, since many files need to be downloaded and installed.
+
 
     ```
     $ cd nfsen-dockerized
     $ docker build -t nfsen-dockerized .
     ```
-3. Run the container. 
+3. Run the container. It will print a container ID as confirmation:
 
     ```
 	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
-    ```
-4. You should see `supervisord` start the apache daemon in the terminal like so:
-
-    ```
-	 2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) 
+	9fbffd32b5153043551dbaf23bdcfa751f730ed84706c532106955bb181c0e71
     ```
 
-5. Point your web browser to [http://localhost:81](http://localhost:81/) The browser will display a warning about "no live data." (**Note:** The `docker run...` command above maps external port 81 to the docker container's web port 80.)
-6. Select *zone1_profile* from the **Profile:** (in the header dropdown)
+5. Point your web browser to [http://localhost:81](http://localhost:81/) You will see the nfsen home page (below). Notes:
 
-7. Configure your router(s) to export flows to this collector, or generate mock flow data (see below). See the Flow_Export.md document for more information.
+   * The `docker run...` command above maps external port 81 to the docker container's web port 80. Change it to use a different external port if needed.
+   * If you installed the Docker container on a separate computer, use the IP address of the computer where you're running wvnetflow.
+   * The page will display a warning about "no live data." 
+
+	<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen-home.png" width="500" />
+
+6. Configure your router(s) to export flows to this collector, or generate mock flow data. See the Flow_Export.md document for more information.
+
+7. Select *zone1_profile* from **Profile:** (in the header dropdown).
+This will eventually show live data.
 
 8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. After that, refreshing the browser shows the data collected at the right edge of any of the plots.
 
-### QuickStart - Other setup information and tests
-
-* To connect to the container via a terminal, use this command:
-
-    ```
-    $ docker exec -i -t nfsen_img /bin/bash
-    ```
-* Add "-d" to daemonize the container when you run it (e.g., `docker run -d -p ...`) This allows you to continue working in the same terminal window. 
-
-* To make a change to the container, stop it with the command below (this removes the "nfsen_img" name), edit the Dockerfile, then rebuild and `docker run`...
-
-    ```
-    $ docker rm -f nfsen_img
-    ```
-* You can break the `run` command over multiple lines for better readability: see `docker run --help` for an explanation of the fields:
-
-    ```
-	$ docker run 
-	  -p 81:80 \
-	  -p 2055:2055/udp \
-	  -p 4739:4739/udp \
-	  -p 6343:6343/udp \
-	  -p 9996:9996/udp \
-	  -i -t --name nfsen_img \
-	  nfsen-dockerized
-    ```
-* The container opens these ports:
-
-	* Apache default port `EXPOSE 80`
-	* NetFlow default port `EXPOSE 2055`
-	* IPFIX default port `EXPOSE 4739`
-	* sFlow default port `EXPOSE 6343`
-	* nfsen src ip src node mappings `EXPOSE 9996`
-
-
-Verify the port bindings with `docker port image_name`
-
-   ```
-   $ docker port nfsen_img
-	2055/udp -> 0.0.0.0:2055
-	4739/udp -> 0.0.0.0:4739
-	6343/udp -> 0.0.0.0:6343
-	9996/udp -> 0.0.0.0:9996
-	80/tcp -> 0.0.0.0:81
-   ```
-
 ### QuickStart - www access
 
-In the list should be the Apache port if no other process was already bound to the port and now point your browser at the container like so (*Note* there will not be any flows in the RRD graphs until we generate some in the next section):
+Open the home page in your web browser, http://localhost:81, or supply your computer's IP address.
 
-    http://192.168.59.103/nfsen/nfsen.php  # use your computer's IP address
+Change the dropdown box from `live` to `zone1_profile` to view live graphing of data in the profile that is packaged as part of the Docker image. The home page shows a grid of three columns of four charts.
 
-Change the dropdown box from `live` to `zone1_profile` to view live graphing of data in the profile that is packaged as part of the Docker image.
+* The columns show **Flows/sec**, **Packets/sec**, and **Bits/sec**
+* The rows show **Daily**, **Weekly**, **Monthly** and **Yearly** traffic
+* Drill-down by clicking on any chart.
 
-![1-empty-flow-tables](https://cloud.githubusercontent.com/assets/1711674/6328202/f8227492-bb32-11e4-9c1c-2cef151b15d0.jpg)
-
-If you chose to map Apache web server to another port (e.g. `-p 81:80`) then add the port to the URL:
-
-    http://192.168.59.103:81/nfsen/nfsen.php    # or port 81, if it has been remapped
-
-
-### QuickStart - generate and view mock flows
-
-There is a Go based netflow generated hacked together for this project since there were not any readily available that were simple to strictly spray data at a collector for testing. Will link to source code soon as it is cleaned up and pushed to a repo.
-
-Note: The flow generator will at some point support choosing what protos and other parameters, but for now it just generates a handful of protocols and the same src/dst netflow payload addresses. As a result some of the protocol filters will be empty in the included protocol filters as seen in the following following screenshots.
-
-Run the generator against the localhost with the following **(fyi, the flow generator is compiled for a Mac, will add a Linux binary shortly)**:
-
-	$ flow-generator  -t 127.0.0.1 -p 9995
-
-This will begin sending flow data at the collector listening on 2205/UDP (netflow). The flows are processed every 5 minutes, after 10 minutes or so you should begin seeing flows appearing in your graphs based on the pre-populated filters.
-
-![2-graph-flow-table-empty](https://cloud.githubusercontent.com/assets/1711674/6328203/f825bb16-bb32-11e4-9294-9547bbfce1be.jpg)
+<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen-home.png" width="500" />
 
 From there you can drill down further into the predefined filters that are added as part of this container build in the `start.sh` runtime script included with the Dockerfile. Below the graphs are raw fdump queries against the collected nfcapd data in the following sceenshot. This is all customized in the Dockerfile and frankly the reason Docker containers are amazing for being able to distribute and convey the exact experience you desire to the consumer of your image:
 
@@ -135,6 +78,7 @@ The rest of the README goes into details around exporting data sets from the net
 Use ctrl^c to break out of the image. That will stop the image. You can start the container whenever you like with `docker start <image_name or container_id`
 
 For more information, read [Flow_Export.md](./Flow_export.md)
+
 
 ### Add more ports or custom configurations and zones ###
 
@@ -163,28 +107,6 @@ If you modify a running instance, simply run 'nfsen reconfig' or stop/start the 
 	Add source 'ipfix-global'
 	Start/restart collector on port '4739' for (ipfix-global)[8079]
 	Restart nfsend:[7974]
-
-
-### Generate Some Traffic ###
-
-You can bind an ip address to the bridge for a quick way to test exports with the following. You simply move the IP from your eth0 interface to the bridge (br0 / br0, etc) interface. Drop the following into a file, give it a chmod +x with the appropriate addresses to migrate your IP from eth0 iface to OVS br0 in the case you don't have a virtual port with something attached to generate the traffic.
-
-	ifconfig eth0 0
-	sudo ovs-vsctl add-port br0 eth0
-	ifconfig br0 172.16.86.134 netmask 255.255.255.0
-	route add default gw 172.16.86.2 br0
-
-After about 20 minutes or so, traffic will begin appearing. You can brute force some traffic generation from the datapath quite simply using something like Mausezahn. *Disclaimer:* Traffic generation to any other target then localhost can quickly be viewed as a denial of service depending on how scrutinized the environment you are in. To be safe, avoid prod networks, crash your home net instead.
-
-	$ apt-get install mz
-	# Careful here, its blasting randomly created crappy headers and payload all over that IP prefix. Maybe a good thing tho.
-	$ mz eth0 -A rand -B 192.168.1.0/24 -c 0 -t tcp "dp=1-1024, flags=syn"  -P "star wars > star trek"
-
-I also included a net flow generator app I wrote to export test netflow traffic to a target collector. The binary is located in the container /data/ directory and the source code is on Github. If you run that on the container it will populate the netflow graphs by default.
-
-	$ flow-generator  -t 127.0.0.1 -p 2205
-
-It is soft linked to bin directory but also located in /data directory
 
 ### Add more protocol filters to your graphs
 
@@ -263,15 +185,60 @@ Example output looks as follows:
 	channel ftp	sign: +	colour: #63EA7D	order: 11	sourcelist: zone1	Files: 1	Size: 4096
 
 
-### Modifying the Docker Image ###
+### Modifying the Docker Image
 
+* Build the docker container. This creates an image named *nfsen-dockerized*
+
+   ```
+   $ cd <folder-containing-wvnetflow-Dockerfile>
+   $ docker build -t nfsen-dockerized . 
+   ```
+
+* Run that newly-built image, and listen on port 81 for browser connections, port 2055 for netflow records, port 4739 for ipfix, port 6343 for sFlow, and port 9996 for nfsen src ip src node mappings:
+
+   ```
+   $ docker run -d -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
+   ```
+
+* The "-d" in the command above daemonizes the container when you run it (e.g., `docker run -d -p ...`) This allows you to continue working in the same terminal window. 
+
+* Connect to the container via a terminal (like ssh), if you want to "look around" inside the container. This is not required: wvnetflow is already running and collecting data.
+
+    ```
+    $ docker exec -it nfsen_img /bin/bash
+    ```
+
+* To make a change to the container, stop it with the command below (this removes the *nfsen_img* name), edit the Dockerfile, then rebuild and `docker run`...
+
+    ```
+    $ docker rm -f nfsen_img
+    ```
+  
+* Verify the port bindings between internal ports (80, 2055, 4739, 6434, 9996) and their external mappings using `docker port image_name`
+
+   ```
+   $ docker port nfsen_img
+   2055/udp -> 0.0.0.0:2055
+   6343/udp -> 0.0.0.0:6343
+   4739/udp -> 0.0.0.0:4739
+   9996/udp -> 0.0.0.0:9996
+   80/tcp -> 0.0.0.0:81
+   ```
+
+-----
+### From original readme...
+
+The Docker image can be modified by setting these environment variables in the Dockerfile
+
+   ```
 	ENV COLLECTOR_IP=192.168.59.103
 	ENV COLLECTOR_PORT=9995
 	ENV AGENT_IP=eth0
 	ENV HEADER_BYTES=512
 	ENV SAMPLING_RATE=64
 	ENV POLLING_SECS=5
-
+   ```
+   
 Then cd into the directory with the Dockerfile and build the new image w/ the new options with any image name you want. The following example is (xflow_debian:v2):
 
     $ docker build -t xflow_debian:v2 .
@@ -280,7 +247,7 @@ And then run the new image, for example:
 
     $ docker run  -p 80:80 -p 9995:9995/udp -p 9996:9996/udp -i -t xflow_debian:v2
 
-	$  docker run  -p 22 -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t -name nfsen_img nfsen-v2.0
+	$ docker run  -p 22 -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t -name nfsen_img nfsen-v2.0
 
 You can also modify the startup bash script located in /data/
 
@@ -468,34 +435,3 @@ Please feel free to jump in on this project. It is integrating community softwar
 - Query EGP/IGP network protocols for network state that can add further visibility for location and any other interesting use cases that can be hacked together having rich data sets.
 
 - Add an API to the ccollector side to install policy filters from the central.
-
-### Deprecated info from original README
-
-**Note:** I did this a long time ago. Pre-fig etc. Needs updating to be useful. It is used to setup nfsen/nfdump that can then be pushed to a global collector.
-
-The first container in the set will setup the local collector  to be installed on every host. While the local collector listens on IP ports and can be oversubscribed, it is interesting to view network collection and analytics as becoming fully distributed along with packet-forwarding and the trend is disagregated network services.  Transitioning network service and management to a scale out architecture on general purpose compute is the primary CapEx savings SDN presents in the data center and beyond.
-
-### QuickStart - Pre-Requisite running Docker instance
-
-***- Docker Installations by OS***
-
-- **(Mac)** Boot2Docker Installation:
-Boot2Docker is the Mac Docker application that is a thin Linux instance tightly integrated into your Mac environment.
-boot2docker Docker Doc Instructions
-https://github.com/boot2docker/boot2docker
-
-- **(Linux Debian)**: [Docker Debian Installation](https://docs.docker.com/installation/debian/)
-- **(Linux Fedora)**: [Docker Fedora Installation](https://docs.docker.com/installation/fedora/)
-- **(Linux Ubuntu)**: [Docker Ubuntu Installation](https://docs.docker.com/installation/ubuntulinux/)
-- **(Linux CentOS)**: [Docker CentOS Installation](https://docs.docker.com/installation/centos/)
-- All OS Distributions can be found at [Docker Documentation](https://docs.docker.com/installation/)
-
----
-
-You should see supervisord start the apache daemons in the terminal like so:
-
-	2015-02-22 04:12:27,903 INFO success: sshd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
-	2015-02-22 04:12:27,903 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
-
-**Note:** The container starts sshd: there are many reason not to run sshd but for getting your container image tweaked to how you want it and initial tshooting, some shell access is necessary for most. 
-
