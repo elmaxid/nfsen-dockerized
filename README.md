@@ -47,7 +47,7 @@ This can take many minutes, since many files need to be downloaded and installed
    * If you installed the Docker container on a separate computer, use the IP address of the computer where you're running wvnetflow.
    * The page will display a warning about "no live data." 
 
-	<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen-home.png" width="500" />
+	<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen_home.png" width="500" />
 
 6. Configure your router(s) to export flows to this collector, or generate mock flow data. See the Flow_Export.md document for more information.
 
@@ -66,7 +66,7 @@ Change the dropdown box from `live` to `zone1_profile` to view live graphing of 
 * The rows show **Daily**, **Weekly**, **Monthly** and **Yearly** traffic
 * Drill-down by clicking on any chart.
 
-<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen-home.png" width="500" />
+<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen_home.png" width="500" />
 
 From there you can drill down further into the predefined filters that are added as part of this container build in the `start.sh` runtime script included with the Dockerfile. Below the graphs are raw fdump queries against the collected nfcapd data in the following sceenshot. This is all customized in the Dockerfile and frankly the reason Docker containers are amazing for being able to distribute and convey the exact experience you desire to the consumer of your image:
 
