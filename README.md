@@ -34,27 +34,35 @@ This can take many minutes, since many files need to be downloaded and installed
     $ cd nfsen-dockerized
     $ docker build -t nfsen-dockerized .
     ```
-3. Run the container. It will print a container ID as confirmation:
+3. Run the container.
 
     ```
 	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
-	9fbffd32b5153043551dbaf23bdcfa751f730ed84706c532106955bb181c0e71
+	
+    ```
+    
+    If the Docker startup is successful, it will print a large amount of debugging information, which culminates with:
+    
+    ```
+    'Supervisord is running as root and it is searching '
+2017-06-09 00:20:53,001 CRIT Supervisor running as root (no user in config file)
+2017-06-09 00:20:53,037 INFO supervisord started with pid 131
+2017-06-09 00:20:54,048 INFO spawned: 'apache2' with pid 134
+2017-06-09 00:20:55,980 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
     ```
 
-5. Point your web browser to [http://localhost:81](http://localhost:81/) You will see the nfsen home page (below). Notes:
+5. Point your web browser at [http://localhost:81](http://localhost:81/) You will see the nfsen home page (below). Notes:
 
    * The `docker run...` command above maps external port 81 to the docker container's web port 80. Change it to use a different external port if needed.
    * If you installed the Docker container on a separate computer, use the IP address of the computer where you're running wvnetflow.
    * The page will display a warning about "no live data." 
+   * Select *zone1_profile* from **Profile:** (in the header dropdown), to display the nfsen home page (below).
 
 	<img src="https://github.com/richb-hanover/nfsen-dockerized/raw/master/docs/nfsen_home.png" width="500" />
 
 6. Configure your router(s) to export flows to this collector, or generate mock flow data. See the Flow_Export.md document for more information.
 
-7. Select *zone1_profile* from **Profile:** (in the header dropdown).
-This will eventually show live data.
-
-8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. After that, refreshing the browser shows the data collected at the right edge of any of the plots.
+8. **Wait...** It can take up to five minutes before the flow data has been collected and displayed. Continue to click the "Home" tab to refresh the page. Ultimately,  the charts show the data collected at the right edge of any of the plots.
 
 ### QuickStart - www access
 
