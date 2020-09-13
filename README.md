@@ -38,17 +38,16 @@ This can take many minutes, since many files need to be downloaded and installed
 
     ```
 	$ docker run -p 81:80 -p 2055:2055/udp -p 4739:4739/udp -p 6343:6343/udp -p 9996:9996/udp  -i -t --name nfsen_img nfsen-dockerized
-	
     ```
     
     If the Docker startup is successful, it will print a large amount of debugging information, which culminates with:
     
     ```
     'Supervisord is running as root and it is searching '
-2017-06-09 00:20:53,001 CRIT Supervisor running as root (no user in config file)
-2017-06-09 00:20:53,037 INFO supervisord started with pid 131
-2017-06-09 00:20:54,048 INFO spawned: 'apache2' with pid 134
-2017-06-09 00:20:55,980 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+    2017-06-09 00:20:53,001 CRIT Supervisor running as root (no user in config file)
+    2017-06-09 00:20:53,037 INFO supervisord started with pid 131
+    2017-06-09 00:20:54,048 INFO spawned: 'apache2' with pid 134
+    2017-06-09 00:20:55,980 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
     ```
 
 5. Point your web browser at [http://localhost:81](http://localhost:81/) You will see the nfsen home page (below). Notes:
